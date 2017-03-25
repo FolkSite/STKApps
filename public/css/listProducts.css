@@ -5,3 +5,7 @@
 .notFound {
     color: red;
 }
+
+.productDetail {
+    display: none;
+}

@@ -42,7 +42,14 @@
                                     </ul>
                                 </li>
                                 <li class="<?php if ($data['thisPage'][0] === 'price') echo 'active' ?>"><a href="/price/">Цены</a></li>
-                                <li><a href="#">Рассылка</a></li>
+                                <li class="<?php if ($data['thisPage'][0] === 'distribution') echo 'active' ?>">
+                                    <a href="/distribution/" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Рассылка<span class="caret"></span></a>
+                                    <ul class="dropdown-menu">
+                                        <li class="<?php if ($content_view === '/distribution/distributionForm.php') echo 'active' ?>"><a href="/distribution/">Добавить</a></li>
+                                        <li class="<?php if ($content_view === '/distribution/uploadAds.php') echo 'active' ?>"><a href="/distribution/uploadAds">Обновить</a></li>
+                                        <li class="<?php if ($content_view === '/distribution/downloadAds.php') echo 'active' ?>"><a href="/distribution/downloadAds">Скачать</a></li>
+                                    </ul>
+                                </li>
                             </ul>
                             <?php if ($data['thisPage'][0] === 'ads'): ?>
                             <form class="navbar-form navbar-right" method="POST" action="search">

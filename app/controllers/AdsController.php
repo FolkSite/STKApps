@@ -35,7 +35,6 @@ class AdsController extends Controller
     {
         $this->data['adsTable'] = $this->ads->getAds();
         $this->data['pagination'] = $this->ads->getPagination('all');
-        $this->checkAuth();
         $this->view->generate('/ads/tableAds.php', 'indexTemplate.php', $this->data, $this->error);
     }
 

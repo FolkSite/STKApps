@@ -1,7 +1,7 @@
 <?php
-    if (isset($error)) {
-        require __DIR__ . '/../errors/errorsList.php';
-    }
+if (isset($error)) {
+    require __DIR__ . '/../errors/errorsList.php';
+}
 ?>
 <div class="row">
     <form class="form-horizontal" action="createad" method="POST">

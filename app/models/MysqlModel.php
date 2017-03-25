@@ -20,6 +20,7 @@ class MysqlModel extends Model
     
     // вариант настроек для подключения БД
     const STK = 1;
+    const STKApps = 2;
 
     /**
      * 
@@ -43,6 +44,11 @@ class MysqlModel extends Model
 
         switch ($settingValue) {
             case self::STK:
+                $config_path = __DIR__ . '/../configs/app.ini';
+                $section_name = 'vagrant';
+                break;
+            
+            case self::STKApps:
                 $config_path = __DIR__ . '/../configs/app.ini';
                 $section_name = 'vagrant';
                 break;

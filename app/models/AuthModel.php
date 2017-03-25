@@ -15,7 +15,7 @@ class AuthModel extends Model
     {
         // передает класса из которого вызывается, для каждого класса свои
         // настройки mysql
-        $this->dbh = new MysqlModel(MysqlModel::STK);
+        $this->dbh = new MysqlModel(MysqlModel::STKApps);
        
     }
 

@@ -31,7 +31,7 @@ class AdsModel extends Model
     {
         // передает класса из которого вызывается, для каждого класса свои
         // настройки mysql
-        $this->dbh = new MysqlModel(MysqlModel::STK);
+        $this->dbh = new MysqlModel(MysqlModel::STKApps);
         $this->date = date("o\-m\-d");
         $this->numThisPage = $numThisPage;
         $this->startPosition = $numThisPage * self::ROW_ON_PAGE;

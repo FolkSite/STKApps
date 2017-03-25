@@ -46,8 +46,6 @@ class PriceController extends Controller
     {
         if (isset($_POST)) {
             $this->data['resultUpdate'] = $this->price->updatePrice();
-            var_dump($this->data['resultUpdate']);
-            var_dump(!empty($this->data['resultUpdate']));
             if (!empty($this->data['resultUpdate'])) {
                 $this->view->generate('/price/listProducts.php', 'indexTemplate.php', $this->data, $this->error);
             } else {

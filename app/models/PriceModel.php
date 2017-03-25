@@ -34,7 +34,7 @@ class PriceModel extends Model
         if (copy($file['tmp_name'], self::PATH_TO_PRICELIST)) {
             return true;
         } else {
-            $this->errors[] = "Неизвестная при загрузке файла на сервер";
+            $this->errors[] = "Ошибка при загрузке файла на сервер";
             return false;
         }
     }
@@ -85,70 +85,57 @@ class PriceModel extends Model
         if (empty($pricelist)) {
             $this->errors[] = "Не удалось найти товары в загруженном файле";
             return false;
-        } else {
-            foreach ($pricelist as $product) {
-                /*
-                $oc_product_query = mysql_query("SELECT * FROM `oc_product` WHERE `sku`  = $skuPrice;", $link);
+        }
 
-                $oc_product = mysql_fetch_array($oc_product_query);
+        foreach ($pricelist as $product) {
+            $productSkuFromPricelist = $product['sku'];
+            $productNameFromPricelist = $product['name'];
+            $productPriceFromPricelist = $product['price'];
+            // получает из бд товар, соответствующий артикулу из прайса
 
-                $id = $oc_product["product_id"];
+            $productFromBd = $this->dbh->query("SELECT * FROM `oc_product` WHERE `sku` = ?;", 'accos', '', array($productSkuFromPricelist));
 
-                if ($id) {
-                    $oc_product_description_query = mysql_query("SELECT * FROM `oc_product_description` WHERE `product_id` = $id", $link);
+            // проверяет найден ли товар в БД и пропускает цикл, если нет
+            
+            if (empty($productFromBd)) {
+                $resultUpdate[] = array(
+                    'text' => "Товар арт. $productSkuFromPricelist - $productNameFromPricelist отсутствует на сайте",
+                    'detail' => "Товар не найден в БД",
+                    'class' => "notFound"
+                );
 
-                    $oc_prod_desc = mysql_fetch_array($oc_product_description_query);
-                }
+                continue;
+            }
 
-                $skuInBD = $oc_product["sku"];
+            $productIdFromBd = $productFromBd["product_id"];
+            $productSkuFromBd = $productFromBd["sku"];
+            $oldPrice = round($productFromBd['price'], 2);
 
-                $oldPriceRound = round($oc_product[14], 2);
+            // получает описание подукта из БД
+            // TODO: полагаю, все это можно сделать одним запросом через JOIN
+            $productDescriptionFromBd = $this->dbh->query("SELECT * FROM `oc_product_description` WHERE `product_id` = ?;", 'accos', '', array($productIdFromBd));
+            $productNameFromBd = $productDescriptionFromBd['name'];
 
-                $skuBD = $oc_product["sku"];
 
+            if ($oldPrice != $productPriceFromPricelist) {
+                $resultUpdate[] = array(
+                    'text' => "Цена у товара арт: $productSkuFromBd  - &laquo;$productNameFromPricelist&raquo; с $oldPrice руб на $productPriceFromPricelist руб",
+                    'detail' => "id: $productIdFromBd, sku in price: $productSkuFromPricelist, sku in BD: $productSkuFromBd, name in BD: &laquo;$productNameFromBd&raquo;",
+                    'class' => "priceChanged"
+                );
 
-                if ($oc_product) {
-                    if ($oldPriceRound != $priceRound) {
-
-                        echo "<p><font color='green'>Цена у товара арт: " . $oc_product["sku"] . " - «" . $name . "» с " . $oldPriceRound . " руб на " .
-                        $priceRound . " руб";
-
-                        if ($debug) {
-                            echo "(id: " . $id . ", sku in price: " . $skuPrice . ", sku in BD: $skuBD, name in BD: «" . $oc_prod_desc["name"] . "»)";
-                        }
-
-                        echo "</font></p>";
-                    } else {
-
-                        echo "<p>Цена у товара арт: " . $oc_product["sku"] . " - «" . $name . "» не изменилась ";
-
-                        if ($debug) {
-                            echo "(id: " . $id .
-                            ", sku in price: " . $skuPrice . ", sku in BD: $skuBD, name in BD: «"
-                            . $oc_prod_desc["name"] . "», старая цена: " . $oldPriceRound .
-                            ", новая цена: " . $price . ")";
-                        }
-
-                        echo "</p>";
-                    }
-                } else {
-                    echo "<p><font color='red'>Товар арт. " . $skuPrice . " - " . $name . " отсутствует на сайте</font></p>";
-                }
-
-                $query = mysql_query("UPDATE `oc_product` SET `price` = $price WHERE `sku` = $skuPrice;", $link);
-                 * 
-                 */
+                // обновляет цену в БД
+                $this->dbh->query("UPDATE `oc_product` SET `price` = ? WHERE `sku` = ?;", 'none', '', array($productPriceFromPricelist, $productSkuFromPricelist));
+            } else {
+                $resultUpdate[] = array(
+                    'text' => "Цена у товара арт: $productSkuFromBd  - &laquo;$productNameFromPricelist&raquo; не изменилась",
+                    'detail' => "id: $productIdFromBd, sku in price: $productSkuFromPricelist, sku in BD: $productSkuFromBd, name in BD: &laquo;$productNameFromBd&raquo;",
+                    'class' => "pricePrevious"
+                );
             }
         }
         
-        // TODO: когда доделаю функцию, можно убрать эту проверку, потому что если $pricelist
-        // не пустой, то $resultUpdate какую-нибудб строку да вернет
-        if (empty($resultUpdate)) {
-            $this->errors[] = "Не удалось получить товары из файла";
-            return false;
-        } else {
-            return $resultUpdate;
-        }
+        return $resultUpdate;
     }
 
 }

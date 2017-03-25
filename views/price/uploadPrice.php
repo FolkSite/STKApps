@@ -10,6 +10,8 @@ if (isset($error)) {
             <label for="uploadedFile">Выберите файл</label>
             <input type="file" name="uploadedFile">
         </div>
-        <button type="submit" class="btn btn-default">Отправить</button>
+        <button type="submit" class="btn btn-default uploadBtn">Отправить</button>
     </form>
 </div>
+
+<script src="<?php echo '/../js/uploadPrice.js'; ?>"></script>
