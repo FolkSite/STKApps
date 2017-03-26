@@ -10,14 +10,14 @@ class DistributionModel extends Model
 
     // объект для работы с БД
     private $dbh;
-    private $date;
+
+    const PATH_TO_CSV = __DIR__ . '/../../storage/distribution.csv';
 
     public function __construct()
     {
         // передает класса из которого вызывается, для каждого класса свои
         // настройки mysql
         $this->dbh = new MysqlModel(MysqlModel::STKApps);
-        $this->date = date("o\-m\-d");
     }
 
     // получает объявления заданного диапазона строк
@@ -97,21 +97,97 @@ class DistributionModel extends Model
 
         $date = date('d.m.Y');
         $telephone_number = preg_replace('/[^0-9]/', '', $telephone_number);
-        
+
         $newAd = $this->dbh->query("INSERT INTO `distribution` (`id_avito`, `link`, `header`,"
                 . " `price`, `organization`, `name`, `telephone_number`, `address`, "
                 . "`message`, `text_ad`, `date`, `number`) VALUES "
-                . "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", 'none', '', 
-                array($id_avito, $link, $header, $price, $organization,
-                    $name, $telephone_number, $address, $message, $text_ad, $date, $number));
-        
+                . "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", 'none', '', array($id_avito, $link, $header, $price, $organization,
+            $name, $telephone_number, $address, $message, $text_ad, $date, $number));
+
         if (!empty($newAd)) {
             $this->successful[] = "Объявление добавлено";
             return true;
-        }  else {
+        } else {
             $this->errors[] = "Ошибка при добавлении объявления в БД";
             return false;
         }
     }
-    
+
+    public function uploadDistribution($file)
+    {
+
+        if ($file['type'] != 'application/vnd.ms-excel') {
+            $this->errors[] = "Файл должен быть только в формате CSV";
+            return false;
+        }
+
+        if (copy($file['tmp_name'], self::PATH_TO_CSV)) {
+            return true;
+        } else {
+            $this->errors[] = "Ошибка при загрузке файла на сервер";
+            return false;
+        }
+    }
+
+    public function parseCSV($param)
+    {
+        $handle = fopen('php://memory', 'w+');
+        fwrite($handle, iconv('CP1251', 'UTF-8', file_get_contents(self::PATH_TO_CSV)));
+        rewind($handle);
+
+        $date = date("d.m.Y");
+
+        $count_update = $count_insert = 0;
+
+        while (($data = fgetcsv($handle, 0, ",")) !== FALSE) {
+            $number = $data[1];
+            $id_avito = $data[2];
+
+
+            /* не все строки являются объявлениеми, поэтому пропускаю те, где не стоит артикул */
+            if (is_numeric($number) && $id_avito) {
+
+                $link = $data[3];
+                $header = $data[4];
+                $price = $data[5];
+                $organization = $data[6];
+                $name = $data[7];
+                /* убираю все кроме цифр, чтобы телефонные номера в БД хранились в одном формате */
+                $telephone_number = preg_replace('/[^0-9]/', '', $data[8]);
+                $address = $data[9];
+                $message = $data[10];
+                $text_ad = $data[11];
+
+                /* не у каждой позиции проставлена дата, потому что в оригинальной таблице есть
+                  объединенные ячейки с датой */
+                if ($data[0] != '') {
+                    $date = str_replace('/', '.', $data[0]);
+                }
+
+                $ads = $this->dbh->query("SELECT * FROM `distribution` WHERE `number` = ?;", 'fetchAll', '', array($number));
+
+                if (empty($ads)) {
+
+                    $newAds = $this->dbh->query("INSERT INTO `distribution` (`id_avito`, `link`, `header`, `price`, `organization`,
+                        `name`, `telephone_number`, `address`, `message`, `text_ad`, `date`,
+                        `number`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", 'none', '', array($id_avito, $link, $header, $price, $organization, $name,
+                        $telephone_number, $address, $message, $text_ad, $date, $number));
+
+                        $count_insert++;
+                } else {
+                    $sql = "UPDATE ads SET `id_avito` = '$id_avito', `link` = '$link', `header` = '$header',
+           `price` = '$price', `organization` = '$organization', `name` = '$name',
+           `telephone_number` = '$telephone_number', `address` = '$address',
+           `message` = '$message', `text_ad` = '$text_ad', `date` = '$date'
+           WHERE `number` = $number";
+
+                        $count_update++;
+                }
+            }
+        }
+        
+        return "Добавлено новых позиций: " . $count_insert . "<br>Обновлено старых позиций: " . $count_update;
+        $mysqli->close();
+    }
+
 }
