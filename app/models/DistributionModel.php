@@ -91,25 +91,19 @@ class DistributionModel extends Model
 
     public function addAd($dataPOST)
     {
-        $number = $dataPOST['number'];
-        $id_avito = $dataPOST['id_avito'];
+        // не использую флаги, функция не использует переменные за пределами 
+        // своей области видимости, нет риска их переписать
+        extract($dataPOST);
+
         $date = date('d.m.Y');
-        $link = $dataPOST['link'];
-        $header = $dataPOST['header'];
-        $price = $dataPOST['price'];
-        $organization = $dataPOST['organization'];
-        $name = $dataPOST['name'];
-        /* убираю все кроме цифр, чтобы телефонные номера в БД хранились в одном формате */
-        $telephone_number = preg_replace('/[^0-9]/', '', $dataPOST['telephone_number']);
-        $address = $dataPOST['address'];
-        $message = $dataPOST['message'];
-        $text_ad = $dataPOST['text_ad'];
+        $telephone_number = preg_replace('/[^0-9]/', '', $telephone_number);
         
         $newAd = $this->dbh->query("INSERT INTO `distribution` (`id_avito`, `link`, `header`,"
                 . " `price`, `organization`, `name`, `telephone_number`, `address`, "
                 . "`message`, `text_ad`, `date`, `number`) VALUES "
                 . "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", 'none', '', 
-                array($id_avito, $link, $header, $price, $organization, $name, $telephone_number, $address, $message, $text_ad, $date, $number));
+                array($id_avito, $link, $header, $price, $organization,
+                    $name, $telephone_number, $address, $message, $text_ad, $date, $number));
         
         if (!empty($newAd)) {
             $this->successful[] = "Объявление добавлено";
