@@ -1,8 +1,8 @@
 <div class="row">
     <?php
-        if (isset($error)) {
-            require __DIR__ . '/../errors/errorsList.php';
-        }
+    if (isset($error)) {
+        require __DIR__ . '/../errors/errorsList.php';
+    }
     ?>
     <table class="table table-bordered">
         <?php
@@ -43,16 +43,26 @@
                     </li>
                 <?php endif; ?>
                 <?php
-                    for ($index = 0; $index < $data['pagination']['quantityPage']; $index++) {
-                        // прибавляю единицу, потому что в БД отсчет с 0, а на фронте с 1
-                        $numPage = $index + 1;
+                // сокращает количество страниц в нумерации, чтобы не ломать верстку, если их слишком много
+                $quantityPage = 10;
+                if ($data['pagination']['thisPage'] > 5 && ($data['pagination']['thisPage'] + 5) > $data['pagination']['quantityPage']) {
+                    $paginationStart = $data['pagination']['thisPage'] - 5;
+                    $paginationEnd = $data['pagination']['thisPage'] + 5;
+                } else {
+                    $paginationStart = 0;
+                    $paginationEnd = $data['pagination']['quantityPage'];
+                }
+                
+                for ($index = $paginationStart; $index < $paginationEnd; $index++) {
+                    // прибавляю единицу, потому что в БД отсчет с 0, а на фронте с 1
+                    $numPage = $index + 1;
 
-                        if ($numPage == $data['pagination']['thisPage']) {
-                            echo '<li class="active"><a href="' . $data['pagination']['link'] . $numPage . '">' . $numPage . '</a></li>';
-                        } else {
-                            echo '<li><a href="' . $data['pagination']['link'] . $numPage . '">' . $numPage . '</a></li>';
-                        }
+                    if ($numPage == $data['pagination']['thisPage']) {
+                        echo '<li class="active"><a href="' . $data['pagination']['link'] . $numPage . '">' . $numPage . '</a></li>';
+                    } else {
+                        echo '<li><a href="' . $data['pagination']['link'] . $numPage . '">' . $numPage . '</a></li>';
                     }
+                }
                 ?>
                 <?php if ($data['pagination']['thisPage'] == $data['pagination']['quantityPage']): ?>
                     <li class="disabled">
