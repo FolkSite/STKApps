@@ -11,12 +11,15 @@ use Application\Models\MysqlModel;
  * и чтобы не слетала утентификация
  * в приложении не требуется разделение прав
  */
-class AuthModel extends Model {
+class AuthModel extends Model
+{
 
     // объект для работы с БД
     private $dbh;
+    private $userData = array();
 
-    public function __construct() {
+    public function __construct()
+    {
         // передает класса из которого вызывается, для каждого класса свои
         // настройки mysql
         $this->dbh = new MysqlModel(MysqlModel::STKApps);
@@ -25,53 +28,56 @@ class AuthModel extends Model {
     /**
      * Авторизация
      */
-    public function authorization() {
-        //проеверяет ниличие кук
-        if (isset($_COOKIE['id_user']) and isset($_COOKIE['code_user'])) {
+    public function authorization()
+    {
+        if (isset($_COOKIE['id_user']) and isset($_COOKIE['password'])) {
 
             $id_user = $_COOKIE['id_user'];
-            $code_user = $_COOKIE['code_user'];
+            $password = $_COOKIE['password'];
+        } elseif (!empty($this->userData)) {
 
-            if ($this->dbh->query("SELECT * FROM `session` WHERE `id_user` = ?;", 'num_row', '', array($id_user)) == 1) {
-
-                $data = $this->dbh->query("SELECT * FROM `session` WHERE `id_user` = ?;", 'accos', '', array($id_user));
-
-                if ($data['code_sess'] == $code_user and $data['user_agent_sess'] == 'none') {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
-
-                return false;
-            }
+            $id_user = $this->userData['id_user'];
+            $password = $this->userData['password'];
         } else {
             return false;
         }
+        
+        // получаю логин, чтобы потом его использовать в view для обращения к пользователю
+        // TODO: лучше в таблице сделать отдельную ячейку для имени, которая не
+        // участвует в авторизации и аутентификации
+        $login = $this->dbh->query("SELECT `login_user` FROM `users` WHERE `id_user` = ?;", 'result', '0', array($id_user));
+        $this->userData['login'] = $login;
+
+        if ($this->dbh->query("SELECT * FROM `users` WHERE `id_user` = ? AND `password_user` = ?;", 'num_row', '', array($id_user, $password)) == 1) {
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
     /**
      * Аутентификация
      */
-    public function authentication() {
-        $login = $_POST['login'];
+    public function authentication()
+    {
+        
+        $login = htmlspecialchars($_POST['login']);
         $password = md5($_POST['password'] . 'lol');
-
-        if ($this->dbh->query("SELECT * FROM `users` WHERE `login_user` = ? AND `password_user` = ?;", 'num_row', '', array($login, $password)) == 1) {
- 
-            $id_user = $this->dbh->query("SELECT * FROM `users` WHERE `login_user` = ? AND `password_user` = ?;", 'result', 0, array($login, $password));
-            $r_code = $this->generateCode(15);
-
-            if ($this->dbh->query("SELECT * FROM `session` WHERE `id_user` = ?;", 'num_row', '', array($id_user)) == 1) {
+        
+        $users = $this->dbh->query("SELECT * FROM `users` WHERE `login_user` = ? AND `password_user` = ?;", 'fetchAll', '', array($login, $password));
                 
-                $this->dbh->query("UPDATE `session` SET `code_sess` = ?, `user_agent_sess` = ? where `id_user` = ?;", 'none', '', array($r_code, 'none', $id_user));
-            } else {
-                
-                $this->dbh->query("INSERT INTO `session` (`id_user`, `code_sess`, `user_agent_sess`) VALUE (?, ?, ?);", 'none', '', array($id_user, $r_code, 'none'));
-            }
+        if ( count($users) == 1) {
+            $id_user = $users[0]['id_user'];
             //ставим куки на 2 недели
             setcookie("id_user", $id_user, time() + 3600 * 24 * 14, '/', null, false, true);
-            setcookie("code_user", $r_code, time() + 3600 * 24 * 14, '/', null, false, true);
+            setcookie("password", $password, time() + 3600 * 24 * 14, '/', null, false, true);
+            
+            // передает в сесси информацию, необходимую для аторизации, потому что 
+            // куки не будут переданы пока страница не обновится
+            $this->userData['id_user'] = $id_user;
+            $this->userData['password'] = $password;
+
             return true;
         } else {
 
@@ -86,29 +92,19 @@ class AuthModel extends Model {
         }
     }
 
-    public function exit_user() {
+    public function exit_user()
+    {
         session_start();
         session_destroy();
-        setcookie("id_user", '', time() - 3600, '/', null, false, true);
-        setcookie("code_user", '', time() - 3600, '/', null, false, true);
-        var_dump($_COOKIE);
+        setcookie("login", '', time() - 3600, '/', null, false, true);
+        setcookie("password", '', time() - 3600, '/', null, false, true);
         $host = 'http://' . $_SERVER['HTTP_HOST'] . '/auth';
         header("Location:" . $host);
         exit();
     }
-
-    /**
-     * генерирует случайную строку
-     */
-    private function generateCode($length) {
-        $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPRQSTUVWXYZ0123456789";
-        $code = '';
-        $clean = strlen($chars) - 1;
-        while (strlen($code) < $length) {
-            $code .= $chars[mt_rand(0, $clean)];
-        }
-
-        return $code;
+   
+    public function getLogin() {
+        return $this->userData['login'];
     }
 
 }

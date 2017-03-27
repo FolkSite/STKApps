@@ -44,15 +44,55 @@
                 <?php endif; ?>
                 <?php
                 // сокращает количество страниц в нумерации, чтобы не ломать верстку, если их слишком много
+                /*
                 $quantityPage = 10;
-                if ($data['pagination']['thisPage'] > 5 && ($data['pagination']['thisPage'] + 5) > $data['pagination']['quantityPage']) {
-                    $paginationStart = $data['pagination']['thisPage'] - 5;
-                    $paginationEnd = $data['pagination']['thisPage'] + 5;
+                var_dump('');
+                var_dump($data['pagination']['thisPage'] > 5);
+                var_dump(($data['pagination']['thisPage'] + 3) > $data['pagination']['quantityPage']);
+                var_dump(($data['pagination']['thisPage'] + 3));
+                if (($data['pagination']['thisPage'] + 3) < $data['pagination']['quantityPage']) {
+                    if ($data['pagination']['thisPage'] > 3) {
+                        $paginationStart = $data['pagination']['thisPage'] - 3;
+                        $paginationEnd = $data['pagination']['thisPage'] + 3;
+                    }
                 } else {
                     $paginationStart = 0;
                     $paginationEnd = $data['pagination']['quantityPage'];
                 }
+                */
                 
+                $thisPage = $data['pagination']['thisPage'];
+                $quantityPage = $data['pagination']['quantityPage'];
+                
+                $maxPagesNumbersOnPage = 10;
+                
+                $leftOfThisPage = ($maxPagesNumbersOnPage/2) + 1;
+                $rightOfThisPage = $maxPagesNumbersOnPage/2;
+                
+                if (($thisPage - $leftOfThisPage) > 0 && ($thisPage + $rightOfThisPage) < $quantityPage) {
+                    
+                    $paginationStart = $thisPage - $leftOfThisPage;
+                    $paginationEnd = $thisPage + $rightOfThisPage;
+                    
+                } elseif (($thisPage - $leftOfThisPage) > 0 && ($thisPage + $rightOfThisPage) >= $quantityPage) {
+                    
+                    $paginationStart = ($thisPage - $leftOfThisPage) + $quantityPage - ($thisPage + $rightOfThisPage);
+                    $paginationEnd = $quantityPage;
+                    
+                } elseif (($thisPage - $leftOfThisPage) <= 0 && ($thisPage + $rightOfThisPage) <= $quantityPage){
+                    
+                    var_dump('last elseif');
+                    $paginationStart = 0;
+                    $paginationEnd = $maxPagesNumbersOnPage;
+                    
+                }
+                
+
+                var_dump($data['pagination']['thisPage']);
+                var_dump($data['pagination']['quantityPage']);
+                var_dump($paginationStart);
+                var_dump($paginationEnd);
+
                 for ($index = $paginationStart; $index < $paginationEnd; $index++) {
                     // прибавляю единицу, потому что в БД отсчет с 0, а на фронте с 1
                     $numPage = $index + 1;
