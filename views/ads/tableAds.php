@@ -37,7 +37,7 @@
                     </li>
                 <?php else: ?>
                     <li>
-                        <a href="<?php echo ($data['pagination']['link']); ?><?php echo ($data['pagination']['thisPage'] - 1); ?>" aria-label="Previous">
+                        <a href="<?php echo ($data['pagination']['link']); ?><?php echo "0"; ?>" aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                         </a>
                     </li>
@@ -61,39 +61,9 @@
                 }
                 */
                 
-                $thisPage = $data['pagination']['thisPage'];
-                $quantityPage = $data['pagination']['quantityPage'];
-                
-                $maxPagesNumbersOnPage = 10;
-                
-                $leftOfThisPage = ($maxPagesNumbersOnPage/2) + 1;
-                $rightOfThisPage = $maxPagesNumbersOnPage/2;
-                
-                if (($thisPage - $leftOfThisPage) > 0 && ($thisPage + $rightOfThisPage) < $quantityPage) {
-                    
-                    $paginationStart = $thisPage - $leftOfThisPage;
-                    $paginationEnd = $thisPage + $rightOfThisPage;
-                    
-                } elseif (($thisPage - $leftOfThisPage) > 0 && ($thisPage + $rightOfThisPage) >= $quantityPage) {
-                    
-                    $paginationStart = ($thisPage - $leftOfThisPage) + $quantityPage - ($thisPage + $rightOfThisPage);
-                    $paginationEnd = $quantityPage;
-                    
-                } elseif (($thisPage - $leftOfThisPage) <= 0 && ($thisPage + $rightOfThisPage) <= $quantityPage){
-                    
-                    var_dump('last elseif');
-                    $paginationStart = 0;
-                    $paginationEnd = $maxPagesNumbersOnPage;
-                    
-                }
                 
 
-                var_dump($data['pagination']['thisPage']);
-                var_dump($data['pagination']['quantityPage']);
-                var_dump($paginationStart);
-                var_dump($paginationEnd);
-
-                for ($index = $paginationStart; $index < $paginationEnd; $index++) {
+                for ($index = $data['pagination']['paginationStart']; $index < $data['pagination']['paginationEnd']; $index++) {
                     // прибавляю единицу, потому что в БД отсчет с 0, а на фронте с 1
                     $numPage = $index + 1;
 
@@ -110,7 +80,7 @@
                     </li>
                 <?php else: ?>
                     <li>
-                        <a href="<?php echo ($data['pagination']['link']); ?><?php echo ($data['pagination']['thisPage'] + 1); ?>" aria-label="Next">
+                        <a href="<?php echo ($data['pagination']['link']); ?><?php echo $data['pagination']['quantityPage']; ?>" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                         </a>
                     </li>
