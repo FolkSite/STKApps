@@ -176,10 +176,10 @@ class DistributionModel extends Model
                         $count_insert++;
                 } else {
                     $sql = "UPDATE ads SET `id_avito` = '$id_avito', `link` = '$link', `header` = '$header',
-           `price` = '$price', `organization` = '$organization', `name` = '$name',
-           `telephone_number` = '$telephone_number', `address` = '$address',
-           `message` = '$message', `text_ad` = '$text_ad', `date` = '$date'
-           WHERE `number` = $number";
+                        `price` = '$price', `organization` = '$organization', `name` = '$name',
+                        `telephone_number` = '$telephone_number', `address` = '$address',
+                        `message` = '$message', `text_ad` = '$text_ad', `date` = '$date'
+                        WHERE `number` = $number";
 
                         $count_update++;
                 }
