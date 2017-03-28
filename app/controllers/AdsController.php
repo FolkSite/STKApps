@@ -64,7 +64,7 @@ class AdsController extends Controller
     {
         if (isset($_POST)) {
             $this->ads->saveAd($_POST);
-            if (!empty($this->ads->getErrors())) {
+            if (!$this->ads->getErrors()) {
                 $this->error = $this->ads->getErrors();
                 $this->view->generate('/ads/editAd.php', 'indexTemplate.php', $this->data, $this->error);
                 exit();

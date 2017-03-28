@@ -141,8 +141,12 @@ class AdsModel extends Model
         if(($maxNums % 2) == 0){
             $maxNums = $maxNums + 1;
         }
+        
+        // если страниц меньше трех
+        $paginationStart = 0;
+        $paginationEnd = 2;
 
-        if ($quantityPage > $maxNums) {
+        if ($quantityPage >= $maxNums) {
             $numSide = ($maxNums - 1) / 2;
 
             if (($numThis - $numSide) > 0 && ($numThis + $numSide) < $quantityPage) {

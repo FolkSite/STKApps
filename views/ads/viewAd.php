@@ -1,7 +1,7 @@
 <div class="row">
-    <button type="button" class="btn btn-default" id="copyAdName">Скопировать заголовок</button>
+    <button type="button" class="btn btn-default" id="copyAdName" title="Скопировать заголовок"><span class="glyphicon glyphicon-copy" aria-hidden="true"></span></button>
     <a href="editad?id=<?php echo htmlspecialchars($data['adInfo']['id'], ENT_QUOTES) ?>">
-        <button type="button" class="btn btn-default pull-right" id="copyAdName">Редактировать</button>
+        <button type="button" class="btn btn-default pull-right" id="copyAdName" title="Редактировать"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>
     </a>
 </div>
 <div class="row">
@@ -9,7 +9,7 @@
 </div>
 
 <div class="row">
-    <button type="button" class="btn btn-default" id="copyAdDescription">Скопировать описание</button>
+    <button type="button" class="btn btn-default" id="copyAdDescription" title="Скопировать описание"><span class="glyphicon glyphicon-copy" aria-hidden="true"></span></button>
 </div>
 <div class="row">
     <p>

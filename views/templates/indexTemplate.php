@@ -46,8 +46,12 @@
                                     <a href="/distribution/" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Рассылка<span class="caret"></span></a>
                                     <ul class="dropdown-menu">
                                         <li class="<?php if ($content_view === '/distribution/distributionForm.php') echo 'active' ?>"><a href="/distribution/">Добавить</a></li>
+                                        <li class="disabled <?php if ($content_view === '/distribution/uploadAds.php') echo 'active' ?>"><a href="#">Обновить</a></li>
+                                        <li class="disabled <?php if ($content_view === '/distribution/downloadAds.php') echo 'active' ?>"><a href="#">Скачать</a></li>
+                                        <!--
                                         <li class="<?php if ($content_view === '/distribution/uploadAds.php') echo 'active' ?>"><a href="/distribution/uploadAds">Обновить</a></li>
                                         <li class="<?php if ($content_view === '/distribution/downloadAds.php') echo 'active' ?>"><a href="/distribution/downloadAds">Скачать</a></li>
+                                        -->
                                     </ul>
                                 </li>
                             </ul>
@@ -62,7 +66,7 @@
                                         <div class="form-group">
                                             <input name="searchQuery" type="text" class="form-control" placeholder="Поиск">
                                         </div>
-                                        <button type="submit" class="btn btn-default">Найти</button>
+                                        <button type="submit" class="btn btn-default" title="Найти"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
                                     </fieldset>
                                 </form>
 
