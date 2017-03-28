@@ -28,8 +28,13 @@ class AuthController extends Controller
         }
 
         if ($this->auth->authorization()) {
+            /*
             $this->data['login'] = $this->auth->getLogin();
             $this->view->generate('/auth/successfulAuth.php', 'authTemplate.php', $this->data, $this->error);
+             * 
+             */
+            $url = 'Location: /ads/';
+            header($url);
         } else {
             $this->view->generate('/auth/AuthForm.php', 'authTemplate.php', $this->data, $this->error);
         }

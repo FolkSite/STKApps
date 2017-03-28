@@ -20,7 +20,7 @@
         <!-- Include all compiled plugins (below), or include individual files as needed -->
         <!-- Latest compiled and minified JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-        
+
         <!-- стиль для  результата обновления цены -->
         <link href="<?php echo '/../css/listProducts.css'; ?>" rel="stylesheet"> 
     </head>
@@ -51,23 +51,32 @@
                                     </ul>
                                 </li>
                             </ul>
+                            
+                            <ul class="nav navbar-nav navbar-right">
+                                <li><a href="/auth/logout" title="Выйти"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span></a></li>
+                            </ul>
+                            
                             <?php if ($data['thisPage'][0] === 'ads'): ?>
-                            <form class="navbar-form navbar-right" method="POST" action="search">
-                                <fieldset>
-                                    <div class="form-group">
-                                        <input name="searchQuery" type="text" class="form-control" placeholder="Поиск">
-                                    </div>
-                                    <button type="submit" class="btn btn-default">Найти</button>
-                                </fieldset>
-                            </form>
+                                <form class="navbar-form navbar-right" method="POST" action="search">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <input name="searchQuery" type="text" class="form-control" placeholder="Поиск">
+                                        </div>
+                                        <button type="submit" class="btn btn-default">Найти</button>
+                                    </fieldset>
+                                </form>
+
                             <?php endif; ?>
+                            
+                            
+                            
                         </div>
                     </div>
                 </nav>
             </div>
 
             <?php require_once __DIR__ . '/../' . $content_view ?>
-            
+
         </div>
     </body>
 </html>
