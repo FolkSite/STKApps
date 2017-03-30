@@ -14,4 +14,4 @@ if (isset($error)) {
     </form>
 </div>
 
-<script src="<?php echo '/../js/uploadPrice.js'; ?>"></script>
+<script src="<?php echo $data['publicDir'] . 'js/uploadPrice.js'; ?>"></script>

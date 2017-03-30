@@ -45,12 +45,12 @@ class MysqlModel extends Model
         switch ($settingValue) {
             case self::STK:
                 $config_path = __DIR__ . '/../configs/app.ini';
-                $section_name = 'vagrant';
+                $section_name = 'host6597';
                 break;
             
             case self::STKApps:
                 $config_path = __DIR__ . '/../configs/app.ini';
-                $section_name = 'vagrant';
+                $section_name = 'host6597_test';
                 break;
 
             default:

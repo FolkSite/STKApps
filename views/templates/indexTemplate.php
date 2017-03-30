@@ -22,7 +22,7 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
         <!-- стиль для  результата обновления цены -->
-        <link href="<?php echo '/../css/listProducts.css'; ?>" rel="stylesheet"> 
+        <link href="<?php echo $data['publicDir'] . 'css/listProducts.css'; ?>" rel="stylesheet"> 
     </head>
     <body>
 

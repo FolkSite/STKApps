@@ -5,11 +5,12 @@ namespace Application\Models;
 use Application\Core\Model;
 use Application\Models\MysqlModel;
 
-class AdsModel extends Model
-{
+class AdsModel extends Model {
 
-    // объект для работы с БД
-    private $dbh;
+    // объект для работы с БД приложения
+    private $dbhSTKApps;
+    // объект для работы с БД магазина
+    private $dbhSTK;
     private $date;
     // количество страниц
     private $quantityPage;
@@ -29,28 +30,26 @@ class AdsModel extends Model
      * @param type $numThisPage номер страницы из которой был вызван конструктор
      * по умолчанию 0, необходим для получения элементов и создания нумерации
      */
-    public function __construct($numThisPage = 0)
-    {
+    public function __construct($numThisPage = 0) {
         // передает класса из которого вызывается, для каждого класса свои
         // настройки mysql
-        $this->dbh = new MysqlModel(MysqlModel::STKApps);
+        $this->dbhSTKApps = new MysqlModel(MysqlModel::STKApps);
+        $this->dbhSTK = new MysqlModel(MysqlModel::STK);
         $this->date = date("o\-m\-d");
         $this->numThisPage = $numThisPage;
         $this->startPosition = $numThisPage * self::ROW_ON_PAGE;
     }
 
     // получает объявления заданного диапазона строк
-    public function getAds()
-    {
-        $ads = $this->dbh->query("SELECT * FROM `ads` ORDER BY `ads`.`id` DESC LIMIT $this->startPosition, " . self::ROW_ON_PAGE . ";", 'fetchAll');
+    public function getAds() {
+        $ads = $this->dbhSTKApps->query("SELECT * FROM `ads` ORDER BY `ads`.`id` DESC LIMIT $this->startPosition, " . self::ROW_ON_PAGE . ";", 'fetchAll');
         return $ads;
-        //return $this->dbh->query("SELECT `id`, `name`, `sku`, `date` FROM ads ORDER BY `ads`.`id` DESC;", 'fetchAll');
+        //return $this->dbhSTKApps->query("SELECT `id`, `name`, `sku`, `date` FROM ads ORDER BY `ads`.`id` DESC;", 'fetchAll');
     }
 
-    public function getAd($id)
-    {
+    public function getAd($id) {
         $returnAd = array();
-        $ad = $this->dbh->query("SELECT * FROM ads WHERE `id` = ?;", 'accos', '', array($id));
+        $ad = $this->dbhSTKApps->query("SELECT * FROM ads WHERE `id` = ?;", 'accos', '', array($id));
         $returnAd['name'] = $ad['name'];
         $returnAd['description'] = $ad['description'];
         $returnAd['sku'] = $ad['sku'];
@@ -65,7 +64,23 @@ class AdsModel extends Model
             // через пробел, а в бд хранятся через запятую, так исторически сложилось
             $returnAd['sku'] = implode(' ', $sku);
             foreach ($sku as $oneSku) {
-                $returnAd['products'][] = trim($oneSku);
+                $oneSku = trim($oneSku);
+
+                $productFromBd = $this->dbhSTK->query("SELECT * FROM `oc_product` WHERE `sku` = ?;", 'accos', '', array($oneSku));
+
+                if ($productFromBd) {
+
+                    $productId = $productFromBd['product_id'];
+                    $productPrice = round($productFromBd['price'], 2);
+                    
+                    $productDescriptionFromBd = $this->dbhSTK->query("SELECT * FROM `oc_product_description` WHERE `product_id` = ?;", 'accos', '', array($productId));
+                    
+                    $productNameFromBd = $productDescriptionFromBd['name'];
+                    
+                    $returnAd['products'][] = "$productNameFromBd - $productPrice руб.";
+                } else {
+                    $returnAd['products'][] = "Товар с артикулом $oneSku не найден в магазине";
+                }
             }
         }
         return $returnAd;
@@ -79,17 +94,16 @@ class AdsModel extends Model
      * @return type количество страниц
      * @throws \Exception ошибка при передаче аргументов
      */
-    private function getQuantityPage($typeResult, $searchQuery = null)
-    {
+    private function getQuantityPage($typeResult, $searchQuery = null) {
         switch ($typeResult) {
             case 'all':
-                $quantityRow = $this->dbh->query("SELECT * FROM `ads`;", 'num_row');
+                $quantityRow = $this->dbhSTKApps->query("SELECT * FROM `ads`;", 'num_row');
 
                 break;
 
             case 'search':
                 $searchQuery = '%' . $searchQuery . '%';
-                $quantityRow = $this->dbh->query("SELECT * FROM `ads` WHERE `name` LIKE ?;", 'num_row', '', array($searchQuery));
+                $quantityRow = $this->dbhSTKApps->query("SELECT * FROM `ads` WHERE `name` LIKE ?;", 'num_row', '', array($searchQuery));
 
                 break;
 
@@ -110,8 +124,7 @@ class AdsModel extends Model
      * @param str $searchQuery искомое значение из формы поиска
      * @return type массив для построения нумерации
      */
-    public function getPagination($typeResult, $searchQuery = null)
-    {
+    public function getPagination($typeResult, $searchQuery = null) {
         // количество страниц
         $quantityPage = $this->getQuantityPage($typeResult, $searchQuery);
         // прибавляю единицу в занчении 'thisPage', потому что в БД отсчет с 0, а на фронте с 1
@@ -132,16 +145,16 @@ class AdsModel extends Model
             default:
                 break;
         }
-        
+
         // число обязательно должно быть нечетным и больше "3" иначе верстка нумерации сломается
         if ($maxNums < 3) {
             $maxNums = 3;
         }
-        
-        if(($maxNums % 2) == 0){
+
+        if (($maxNums % 2) == 0) {
             $maxNums = $maxNums + 1;
         }
-        
+
         // если страниц меньше трех
         $paginationStart = 0;
         $paginationEnd = 2;
@@ -171,24 +184,22 @@ class AdsModel extends Model
         return $pages;
     }
 
-    public function saveAd(array $dataFromForm)
-    {
+    public function saveAd(array $dataFromForm) {
         // проверяет, что все поля заполнены
         $this->validatePOST($dataFromForm);
         // вернет TRUE в случае успеха
-        return $ad = $this->dbh->query("UPDATE `ads` SET `name` = ?, `sku` = ?, `description` = ?, `date` = ? WHERE `id` = ?", 'none', '', array($dataFromForm['name'], $dataFromForm['sku'], htmlspecialchars($dataFromForm['description']), $this->date, $dataFromForm['id']));
+        return $ad = $this->dbhSTKApps->query("UPDATE `ads` SET `name` = ?, `sku` = ?, `description` = ?, `date` = ? WHERE `id` = ?", 'none', '', array($dataFromForm['name'], $dataFromForm['sku'], htmlspecialchars($dataFromForm['description']), $this->date, $dataFromForm['id']));
     }
 
-    public function createAd(array $dataFromForm)
-    {
+    public function createAd(array $dataFromForm) {
         // проверяет, что все поля заполнены
         if (!$this->validatePOST($dataFromForm)) {
             return;
         }
 
-        $newAd = $this->dbh->query("INSERT INTO `ads` (`id`, `name`, `sku`, `description`, `date`) VALUES (NULL, ?, ?, ?, ?)", 'none', '', array($dataFromForm['name'], $dataFromForm['sku'], htmlspecialchars($dataFromForm['description']), $this->date));
+        $newAd = $this->dbhSTKApps->query("INSERT INTO `ads` (`id`, `name`, `sku`, `description`, `date`) VALUES (NULL, ?, ?, ?, ?)", 'none', '', array($dataFromForm['name'], $dataFromForm['sku'], htmlspecialchars($dataFromForm['description']), $this->date));
         // возвращает id нового объявления
-        return $this->dbh->getLastInsertId();
+        return $this->dbhSTKApps->getLastInsertId();
     }
 
     /**
@@ -196,8 +207,7 @@ class AdsModel extends Model
      * @param type $dataPOST
      * @return boolean вернет FALSE если хоть одно поле не заполнено
      */
-    private function validatePOST($dataPOST)
-    {
+    private function validatePOST($dataPOST) {
         if (empty($dataPOST['name'])) {
             $this->errors[] = "Введите заголовок";
         }
@@ -216,12 +226,11 @@ class AdsModel extends Model
     }
 
     // ищет по заголовку объявления
-    public function search($qurySearchForm)
-    {
+    public function search($qurySearchForm) {
         if (!empty($qurySearchForm)) {
 
             $searchQuery = '%' . $qurySearchForm . '%';
-            $searchResult = $this->dbh->query("SELECT * FROM `ads` WHERE `name` LIKE ? ORDER BY `ads`.`id` DESC LIMIT $this->startPosition, " . self::ROW_ON_PAGE . ";", 'fetchAll', '', array($searchQuery));
+            $searchResult = $this->dbhSTKApps->query("SELECT * FROM `ads` WHERE `name` LIKE ? ORDER BY `ads`.`id` DESC LIMIT $this->startPosition, " . self::ROW_ON_PAGE . ";", 'fetchAll', '', array($searchQuery));
 
             if (count($searchResult) > 0) {
                 return $searchResult;
@@ -235,11 +244,10 @@ class AdsModel extends Model
         }
     }
 
-    public function delAd($idAds)
-    {
+    public function delAd($idAds) {
         // в случае ошибки при выполнении запроса PDO должен выкинуть исключение,
         // но это не точно, так что, возможно, стоит сделать дополнительную проверку
-        $this->dbh->query("DELETE FROM `ads` WHERE `id` = ?", 'none', '', array($idAds));
+        $this->dbhSTKApps->query("DELETE FROM `ads` WHERE `id` = ?", 'none', '', array($idAds));
         return true;
     }
 

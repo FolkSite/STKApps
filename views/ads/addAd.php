@@ -40,4 +40,4 @@ if (isset($error)) {
     </form>
 </div>
 
-<script src="<?php echo '/../js/editAd.js'; ?>"></script>
+<script src="<?php echo $data['publicDir'] . 'js/editAd.js'; ?>"></script>

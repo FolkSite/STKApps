@@ -10,14 +10,15 @@ class DistributionModel extends Model
 
     // объект для работы с БД
     private $dbh;
-
-    const PATH_TO_CSV = __DIR__ . '/../../storage/distribution.csv';
+    // путь до excel таблицы для обновления данных в БД
+    private $pathToCSV;
 
     public function __construct()
     {
         // передает класса из которого вызывается, для каждого класса свои
         // настройки mysql
         $this->dbh = new MysqlModel(MysqlModel::STKApps);
+        $this->pathToCSV = __DIR__ . '/../../storage/distribution.csv'; 
     }
 
     // получает объявления заданного диапазона строк
@@ -121,7 +122,7 @@ class DistributionModel extends Model
             return false;
         }
 
-        if (copy($file['tmp_name'], self::PATH_TO_CSV)) {
+        if (copy($file['tmp_name'], $this->pathToCSV)) {
             return true;
         } else {
             $this->errors[] = "Ошибка при загрузке файла на сервер";
@@ -132,7 +133,7 @@ class DistributionModel extends Model
     public function parseCSV($param)
     {
         $handle = fopen('php://memory', 'w+');
-        fwrite($handle, iconv('CP1251', 'UTF-8', file_get_contents(self::PATH_TO_CSV)));
+        fwrite($handle, iconv('CP1251', 'UTF-8', file_get_contents($this->pathToCSV)));
         rewind($handle);
 
         $date = date("d.m.Y");

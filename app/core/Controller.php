@@ -21,6 +21,7 @@ class Controller
     {
         $this->view = new View;
         $this->auth = new AuthModel();
+        $this->data['publicDir'] = '/public/';
     }
 
     // Проверка авторизации

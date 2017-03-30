@@ -16,7 +16,8 @@
         <span id="adDescription">
             <?php
             foreach ($data['adInfo']['products'] as $product) {
-                echo htmlspecialchars($product, ENT_QUOTES) . "<br>";
+                $product = '<strong>' . $product . '</strong>';
+                echo  htmlspecialchars($product, ENT_QUOTES) . "<br>";
             }
             // убрал htmlspecialchars, что является уязвимостью для XSS атак
             // не придумал ничего лучше, надо отобразить хтмл код из описания как текст
@@ -29,5 +30,5 @@
 </div>
 
 <!-- Функция копирования -->    
-<script src="<?php echo '/../js/copyAd.js'; ?>"></script>
+<script src="<?php echo $data['publicDir'] . 'js/copyAd.js'; ?>"></script>
 

@@ -140,6 +140,6 @@ if (isset($data['successful'])) {
 </div>
 
 <!-- библиотека для создания маски телефонного номера -->
-<script src="<?php echo '/../js/jquery.maskedinput.js'; ?>" type="text/javascript"></script>
+<script src="<?php echo $data['publicDir'] . 'js/jquery.maskedinput.js'; ?>" type="text/javascript"></script>
 
-<script src="<?php echo '/../js/distributionForm.js'; ?>"></script>
+<script src="<?php echo $data['publicDir'] . 'js/distributionForm.js'; ?>"></script>

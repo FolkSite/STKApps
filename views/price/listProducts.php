@@ -48,4 +48,4 @@ if (isset($error)) {
     </div>
 </div>
 
-<script src="<?php echo '/../js/listProducts.js'; ?>"></script>
+<script src="<?php echo $data['publicDir'] . 'js/listProducts.js'; ?>"></script>

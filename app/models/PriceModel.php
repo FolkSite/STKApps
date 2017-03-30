@@ -11,9 +11,8 @@ class PriceModel extends Model
     // объект для работы с БД
     private $dbh;
     private $date;
-
-    // название прайслиста и путь до него
-    const PATH_TO_PRICELIST = __DIR__ . '/../../storage/price.csv';
+    // путь до прайслиста
+    private $pathToPricelist;
 
     public function __construct()
     {
@@ -21,17 +20,20 @@ class PriceModel extends Model
         // настройки mysql
         $this->dbh = new MysqlModel(MysqlModel::STK);
         $this->date = date("o\-m\-d");
+        $this->pathToPricelist = __DIR__ . '/../../storage/price.csv';
     }
 
     public function uploadPrice($file)
     {
 
-        if ($file['type'] != 'application/vnd.ms-excel') {
+        if ($file['type'] === 'application/vnd.ms-excel' || $file['type'] === 'text/csv') {
+            
+        } else {
             $this->errors[] = "Файл должен быть только в формате CSV";
             return false;
         }
-
-        if (copy($file['tmp_name'], self::PATH_TO_PRICELIST)) {
+        
+        if (move_uploaded_file($file['tmp_name'], $this->pathToPricelist)) {
             return true;
         } else {
             $this->errors[] = "Ошибка при загрузке файла на сервер";
@@ -41,18 +43,17 @@ class PriceModel extends Model
 
     private function parsePrice()
     {
-        if (!file_exists(self::PATH_TO_PRICELIST)) {
+        if (!file_exists($this->pathToPricelist)) {
             $this->errors[] = "Файл с прайс-листом не найден";
             return;
         }
         $pricelist = array();
 
         $handle = fopen('php://memory', 'w+');
-        fwrite($handle, iconv('CP1251', 'UTF-8', file_get_contents(self::PATH_TO_PRICELIST)));
+        fwrite($handle, iconv('CP1251', 'UTF-8', file_get_contents($this->pathToPricelist)));
         rewind($handle);
 
         while (($data = fgetcsv($handle, 0, ";")) !== FALSE) {
-
             // если ячейка содержит цифру, то скорее всего, это строка с товаром
             if (is_numeric($data[3])) {
 
