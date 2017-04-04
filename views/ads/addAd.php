@@ -33,7 +33,7 @@ if (isset($error)) {
                     if (!empty($_POST)) {
                         echo @$_POST['description'];
                     } else {
-                        // небезопасно, но иначе ломается верска объявления
+                        // небезопасно, но иначе ломается верстка объявления
                         echo $data['description'];
                     }     
                     ?></textarea>
