@@ -85,6 +85,15 @@ class AdsModel extends Model {
         }
         return $returnAd;
     }
+    
+    public function getAdDescription () {
+        $ad = $this->dbhSTKApps->query("SELECT * FROM `ads` ORDER BY `ads`.`id` DESC LIMIT $this->startPosition, " . self::ROW_ON_PAGE . ";", 'accos');
+        if (empty($ad)) {
+            return '';
+        } else {
+            return $ad['description'];        
+        }
+    }
 
     /**
      * получает количество страниц

@@ -29,7 +29,14 @@ if (isset($error)) {
         <div class="form-group">
             <label for="description" class="col-md-2 control-label">Объявление</label>
             <div class="col-md-10">
-                <textarea name="description" rows="30" class="form-control" id="description"><?php echo @$_POST['description'] ?></textarea>
+                <textarea name="description" rows="30" class="form-control" id="description"><?php
+                    if (!empty($_POST)) {
+                        echo @$_POST['description'];
+                    } else {
+                        // небезопасно, но иначе ломается верска объявления
+                        echo $data['description'];
+                    }     
+                    ?></textarea>
             </div>
         </div>
         <div class="form-group">

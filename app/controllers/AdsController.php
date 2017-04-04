@@ -80,6 +80,7 @@ class AdsController extends Controller
 
     public function addAd()
     {
+        $this->data['description'] = $this->ads->getAdDescription();
         $this->view->generate('/ads/addAd.php', 'indexTemplate.php', $this->data, $this->error);
     }
 
