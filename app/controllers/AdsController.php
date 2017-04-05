@@ -63,8 +63,12 @@ class AdsController extends Controller
     public function saveAd()
     {
         if (isset($_POST)) {
-            $this->ads->saveAd($_POST);
-            if (!$this->ads->getErrors()) {
+
+            $saveAd = $this->ads->saveAd($_POST);
+
+            $errors = $this->ads->getErrors();
+            if (!empty($errors)) {
+
                 $this->error = $this->ads->getErrors();
                 $this->view->generate('/ads/editAd.php', 'indexTemplate.php', $this->data, $this->error);
                 exit();
@@ -73,6 +77,7 @@ class AdsController extends Controller
             $url = 'Location: /ads/getad?id=' . $_POST['id'];
             header($url);
         } else {
+
             // TODO: должен вернуть и отобразить ошибку, если это не POST запрос
             $this->getPage();
         }

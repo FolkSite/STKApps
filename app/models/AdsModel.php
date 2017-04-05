@@ -195,9 +195,11 @@ class AdsModel extends Model {
 
     public function saveAd(array $dataFromForm) {
         // проверяет, что все поля заполнены
-        $this->validatePOST($dataFromForm);
+        $valid = $this->validatePOST($dataFromForm);
         // вернет TRUE в случае успеха
-        return $ad = $this->dbhSTKApps->query("UPDATE `ads` SET `name` = ?, `sku` = ?, `description` = ?, `date` = ? WHERE `id` = ?", 'none', '', array($dataFromForm['name'], $dataFromForm['sku'], htmlspecialchars($dataFromForm['description']), $this->date, $dataFromForm['id']));
+        $ad = $this->dbhSTKApps->query("UPDATE `ads` SET `name` = ?, `sku` = ?, `description` = ?, `date` = ? WHERE `id` = ?", 'none', 
+                '', array($dataFromForm['name'], $dataFromForm['sku'], htmlspecialchars($dataFromForm['description']), $this->date, $dataFromForm['id']));
+        return $ad;
     }
 
     public function createAd(array $dataFromForm) {
@@ -206,7 +208,8 @@ class AdsModel extends Model {
             return;
         }
 
-        $newAd = $this->dbhSTKApps->query("INSERT INTO `ads` (`id`, `name`, `sku`, `description`, `date`) VALUES (NULL, ?, ?, ?, ?)", 'none', '', array($dataFromForm['name'], $dataFromForm['sku'], htmlspecialchars($dataFromForm['description']), $this->date));
+        $newAd = $this->dbhSTKApps->query("INSERT INTO `ads` (`id`, `name`, `sku`, `description`, `date`) VALUES (NULL, ?, ?, ?, ?)", 'none', 
+                '', array($dataFromForm['name'], $dataFromForm['sku'], htmlspecialchars($dataFromForm['description']), $this->date));
         // возвращает id нового объявления
         return $this->dbhSTKApps->getLastInsertId();
     }
