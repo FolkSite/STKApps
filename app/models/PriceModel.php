@@ -4,6 +4,7 @@ namespace Application\Models;
 
 use Application\Core\Model;
 use Application\Models\MysqlModel;
+use Application\Models\ConfigModel;
 
 class PriceModel extends Model
 {
@@ -18,7 +19,7 @@ class PriceModel extends Model
     {
         // передает класса из которого вызывается, для каждого класса свои
         // настройки mysql
-        $this->dbh = new MysqlModel(MysqlModel::STK);
+        $this->dbh = new MysqlModel(ConfigModel::STK);
         $this->date = date("o\-m\-d");
         $this->pathToPricelist = __DIR__ . '/../../storage/price.csv';
     }

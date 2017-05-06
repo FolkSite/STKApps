@@ -4,11 +4,12 @@ namespace Application\Models;
 
 use Application\Core\Model;
 use Application\Models\MysqlModel;
+use Application\Models\ConfigModel;
 
 /**
  * класс переписан так, чтобы для аутентификации и авторизации использовались только куки,
  * потому что необходима возможность заходить под одним пользователям с разных компьютеров 
- * и чтобы не слетала утентификация
+ * и чтобы не слетала аутентификация
  * в приложении не требуется разделение прав
  */
 class AuthModel extends Model
@@ -22,7 +23,7 @@ class AuthModel extends Model
     {
         // передает класса из которого вызывается, для каждого класса свои
         // настройки mysql
-        $this->dbh = new MysqlModel(MysqlModel::STKApps);
+        $this->dbh = new MysqlModel(ConfigModel::STKApps);
     }
 
     /**

@@ -4,6 +4,7 @@ namespace Application\Models;
 
 use Application\Core\Model;
 use Application\Models\MysqlModel;
+use Application\Models\ConfigModel;
 
 class DistributionModel extends Model
 {
@@ -17,7 +18,7 @@ class DistributionModel extends Model
     {
         // передает класса из которого вызывается, для каждого класса свои
         // настройки mysql
-        $this->dbh = new MysqlModel(MysqlModel::STKApps);
+        $this->dbh = new MysqlModel(ConfigModel::STKApps);
         $this->pathToCSV = __DIR__ . '/../../storage/distribution.csv'; 
     }
 

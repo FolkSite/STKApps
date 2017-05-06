@@ -4,6 +4,7 @@ namespace Application\Models;
 
 use Application\Core\Model;
 use Application\Models\MysqlModel;
+use Application\Models\ConfigModel;
 
 class AdsModel extends Model {
 
@@ -33,8 +34,8 @@ class AdsModel extends Model {
     public function __construct($numThisPage = 0) {
         // передает класса из которого вызывается, для каждого класса свои
         // настройки mysql
-        $this->dbhSTKApps = new MysqlModel(MysqlModel::STKApps);
-        $this->dbhSTK = new MysqlModel(MysqlModel::STK);
+        $this->dbhSTKApps = new MysqlModel(ConfigModel::STKApps);
+        $this->dbhSTK = new MysqlModel(ConfigModel::STK);
         $this->date = date("o\-m\-d");
         $this->numThisPage = $numThisPage;
         $this->startPosition = $numThisPage * self::ROW_ON_PAGE;

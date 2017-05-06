@@ -4,6 +4,7 @@ namespace Application\Models;
 
 use Application\Core\Model;
 use PDO;
+use Application\Models\ConfigModel;
 
 /**
  * Объект класса подключается к БД и работает с запросами
@@ -18,17 +19,16 @@ class MysqlModel extends Model
     private $dbh;
     private $config_data;
     
-    // вариант настроек для подключения БД
-    const STK = 1;
-    const STKApps = 2;
-
     /**
      * 
      * @param Model $classModel класса из которого создается объект MysqlModel
      */
     public function __construct($settingValue)
     {
-        $this->loadConfig($settingValue);
+        // получает настройки для соединения с БД
+        $mysqlConfig = ConfigModel::getInstance();
+        $this->config_data = $mysqlConfig->getConfig($settingValue);
+        
         $this->connect();
     }
 
@@ -37,6 +37,8 @@ class MysqlModel extends Model
      * @param Model $classModel класс из которого создается объекта класса MysqlModel 
      * @return type массив с данными из заданной секции настроек
      */
+    // TODO: для работы с конфигом надо создать отдельный класс, в котором будет
+    // прописано какому классу какой конфиг отдавать
     private function loadConfig($settingValue)
     {
         $config_path = null;
