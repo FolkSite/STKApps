@@ -32,40 +32,6 @@ class MysqlModel extends Model
         $this->connect();
     }
 
-    /**
-     * возвращает настройки для подключения к БД
-     * @param Model $classModel класс из которого создается объекта класса MysqlModel 
-     * @return type массив с данными из заданной секции настроек
-     */
-    // TODO: для работы с конфигом надо создать отдельный класс, в котором будет
-    // прописано какому классу какой конфиг отдавать
-    private function loadConfig($settingValue)
-    {
-        $config_path = null;
-        $section_name = null;
-
-        switch ($settingValue) {
-            case self::STK:
-                $config_path = __DIR__ . '/../configs/app.ini';
-                $section_name = 'host6597';
-                break;
-            
-            case self::STKApps:
-                $config_path = __DIR__ . '/../configs/app.ini';
-                $section_name = 'host6597_test';
-                break;
-
-            default:
-                throw new \Exception("Для класса ".get_class($classModel)." нет настроек Mysql");
-                break;
-        }
-         
-        $config_array = parse_ini_file($config_path, true);
-        $config_array = $config_array[$section_name];
-        // присваивает защищенному свойству объекта данные из файла конфигурации
-        $this->config_data = $config_array;
-    }
-
     private function connect()
     {
         // отлов ошибок подключения к БД
