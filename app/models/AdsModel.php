@@ -212,7 +212,7 @@ class AdsModel extends Model {
         $newAd = $this->dbhSTKApps->query("INSERT INTO `ads` (`id`, `name`, `sku`, `description`, `date`) VALUES (NULL, ?, ?, ?, ?)", 'none', 
                 '', array($dataFromForm['name'], $dataFromForm['sku'], htmlspecialchars($dataFromForm['description']), $this->date));
         // возвращает id нового объявления
-        return $this->dbhSTKApps->getLastInsertId();
+        return $this->dbhSTKApps->query('lastInsertId', 'none', '', '');
     }
 
     /**

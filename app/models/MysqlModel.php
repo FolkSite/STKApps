@@ -76,6 +76,11 @@ class MysqlModel extends Model
                     $q->execute($query_param);
                     return $q;
                     break;
+                
+                // возвращает id последней добавленной в БД строки
+                case 'lastInsertId':
+                    return intval($this->dbh->lastInsertId());
+                    break;
 
                 default:
                     // выкидывает исключение и завершает скрипт, если не найден переданный тип SQL запроса
@@ -84,10 +89,10 @@ class MysqlModel extends Model
             }
         }
     }
-    
+    /*
     public function getLastInsertId()
     {
         return intval($this->dbh->lastInsertId());
     }
-
+    */
 }
