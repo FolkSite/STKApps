@@ -53,9 +53,9 @@ class ConfigModel extends Model
 
             case self::STKApps:
 
-                $this->ensure(isset($this->configArray['host6597_test']), "Настройки для константы STKApps не найдены");
+                $this->ensure(isset($this->configArray['host6597']), "Настройки для константы STKApps не найдены");
 
-                return $this->configArray['host6597_test'];
+                return $this->configArray['host6597'];
                 break;
 
             default:
@@ -79,7 +79,7 @@ class ConfigModel extends Model
     {
         
         if (!$expr) {
-            throw new Exception($message);
+            throw new \Exception($message);
         }
     }
 
