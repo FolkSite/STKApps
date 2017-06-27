@@ -1,6 +1,7 @@
 window.onload = function () {
     var copyAdName = document.getElementById("copyAdName");
     var copyAdDescription = document.getElementById("copyAdDescription");
+    var removeFormattingBtn = document.getElementById("removeFormattingBtn");
 
     copyAdName.onclick = function () {
         copyArea("adName");
@@ -10,9 +11,12 @@ window.onload = function () {
         copyArea("adDescription");
     }
 
+    removeFormattingBtn.onclick = function () {
+        removeFormatting("adDescription");
+    }
+
     function copyArea(copyAreaID) {
         var copyArea = document.getElementById(copyAreaID);
-        console.log(copyArea);
         var range = document.createRange();
         range.selectNode(copyArea);
         window.getSelection().addRange(range);
@@ -26,5 +30,16 @@ window.onload = function () {
         }
 
         window.getSelection().removeAllRanges();
+    }
+    
+    // удаляет теги <strong> и </strong>
+    function removeFormatting(areaID) {
+        var descriptionArea = document.getElementById(areaID);
+        var descriptionContent = document.getElementById(areaID).innerHTML;
+        
+        descriptionContent = descriptionContent.replace(/&lt;strong&gt;/g, "");
+        descriptionContent = descriptionContent.replace(/&lt;\/strong&gt;/g, "");
+        
+        descriptionArea.innerHTML = descriptionContent;
     }
 }

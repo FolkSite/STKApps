@@ -6,7 +6,8 @@ use Application\Core\Model;
 use Application\Models\MysqlModel;
 use Application\Models\ConfigModel;
 
-class AdsModel extends Model {
+class AdsModel extends Model
+{
 
     // объект для работы с БД приложения
     private $dbhSTKApps;
@@ -31,7 +32,8 @@ class AdsModel extends Model {
      * @param type $numThisPage номер страницы из которой был вызван конструктор
      * по умолчанию 0, необходим для получения элементов и создания нумерации
      */
-    public function __construct($numThisPage = 0) {
+    public function __construct($numThisPage = 0)
+    {
         // передает класса из которого вызывается, для каждого класса свои
         // настройки mysql
         $this->dbhSTKApps = new MysqlModel(ConfigModel::STKApps);
@@ -42,13 +44,15 @@ class AdsModel extends Model {
     }
 
     // получает объявления заданного диапазона строк
-    public function getAds() {
+    public function getAds()
+    {
         $ads = $this->dbhSTKApps->query("SELECT * FROM `ads` ORDER BY `ads`.`id` DESC LIMIT $this->startPosition, " . self::ROW_ON_PAGE . ";", 'fetchAll');
         return $ads;
         //return $this->dbhSTKApps->query("SELECT `id`, `name`, `sku`, `date` FROM ads ORDER BY `ads`.`id` DESC;", 'fetchAll');
     }
 
-    public function getAd($id) {
+    public function getAd($id)
+    {
         $returnAd = array();
         $ad = $this->dbhSTKApps->query("SELECT * FROM ads WHERE `id` = ?;", 'accos', '', array($id));
         $returnAd['name'] = $ad['name'];
@@ -73,11 +77,11 @@ class AdsModel extends Model {
 
                     $productId = $productFromBd['product_id'];
                     $productPrice = round($productFromBd['price'], 2);
-                    
+
                     $productDescriptionFromBd = $this->dbhSTK->query("SELECT * FROM `oc_product_description` WHERE `product_id` = ?;", 'accos', '', array($productId));
-                    
+
                     $productNameFromBd = $productDescriptionFromBd['name'];
-                    
+
                     $returnAd['products'][] = "$productNameFromBd - $productPrice руб.";
                 } else {
                     $returnAd['products'][] = "Товар с артикулом $oneSku не найден в магазине";
@@ -86,13 +90,14 @@ class AdsModel extends Model {
         }
         return $returnAd;
     }
-    
-    public function getAdDescription () {
+
+    public function getAdDescription()
+    {
         $ad = $this->dbhSTKApps->query("SELECT * FROM `ads` ORDER BY `ads`.`id` DESC LIMIT $this->startPosition, " . self::ROW_ON_PAGE . ";", 'accos');
         if (empty($ad)) {
             return '';
         } else {
-            return $ad['description'];        
+            return $ad['description'];
         }
     }
 
@@ -104,7 +109,8 @@ class AdsModel extends Model {
      * @return type количество страниц
      * @throws \Exception ошибка при передаче аргументов
      */
-    private function getQuantityPage($typeResult, $searchQuery = null) {
+    private function getQuantityPage($typeResult, $searchQuery = null)
+    {
         switch ($typeResult) {
             case 'all':
                 $quantityRow = $this->dbhSTKApps->query("SELECT * FROM `ads`;", 'num_row');
@@ -134,7 +140,8 @@ class AdsModel extends Model {
      * @param str $searchQuery искомое значение из формы поиска
      * @return type массив для построения нумерации
      */
-    public function getPagination($typeResult, $searchQuery = null) {
+    public function getPagination($typeResult, $searchQuery = null)
+    {
         // количество страниц
         $quantityPage = $this->getQuantityPage($typeResult, $searchQuery);
         // прибавляю единицу в занчении 'thisPage', потому что в БД отсчет с 0, а на фронте с 1
@@ -194,25 +201,54 @@ class AdsModel extends Model {
         return $pages;
     }
 
-    public function saveAd(array $dataFromForm) {
+    public function saveAd(array $dataFromForm)
+    {
         // проверяет, что все поля заполнены
         $valid = $this->validatePOST($dataFromForm);
         // вернет TRUE в случае успеха
-        $ad = $this->dbhSTKApps->query("UPDATE `ads` SET `name` = ?, `sku` = ?, `description` = ?, `date` = ? WHERE `id` = ?", 'none', 
-                '', array($dataFromForm['name'], $dataFromForm['sku'], htmlspecialchars($dataFromForm['description']), $this->date, $dataFromForm['id']));
+        $ad = $this->dbhSTKApps->query("UPDATE `ads` SET `name` = ?, `sku` = ?, `description` = ?, `date` = ? WHERE `id` = ?", 'none', '', array($dataFromForm['name'], $dataFromForm['sku'], htmlspecialchars($dataFromForm['description']), $this->date, $dataFromForm['id']));
         return $ad;
     }
 
-    public function createAd(array $dataFromForm) {
+    public function createAd(array $dataFromForm)
+    {
         // проверяет, что все поля заполнены
         if (!$this->validatePOST($dataFromForm)) {
             return;
         }
 
-        $newAd = $this->dbhSTKApps->query("INSERT INTO `ads` (`id`, `name`, `sku`, `description`, `date`) VALUES (NULL, ?, ?, ?, ?)", 'none', 
-                '', array($dataFromForm['name'], $dataFromForm['sku'], htmlspecialchars($dataFromForm['description']), $this->date));
+        $sku = $this->convetSkuForDB($dataFromForm['sku']);
+
+        $newAd = $this->dbhSTKApps->query("INSERT INTO `ads` (`id`, `name`, `sku`, `description`, `date`) VALUES (NULL, ?, ?, ?, ?)", 'none', '', array($dataFromForm['name'], $sku, htmlspecialchars($dataFromForm['description']), $this->date));
         // возвращает id нового объявления
-        return $this->dbhSTKApps->query('lastInsertId', 'none', '', '');
+        return $this->dbhSTKApps->query('', 'lastInsertId', '', '');
+    }
+
+    // необходимо заменить пробелы на запятые - в форму артикулы вставляются 
+    // через пробел, а в бд хранятся через запятую, так исторически сложилось
+    private function convetSkuForDB($sku)
+    {
+        $skuArray = explode(" ", $sku);
+
+
+        $skuArrayFiltered = array();
+
+        foreach ($skuArray as $sku) {
+            $sku = trim($sku);
+            
+            // убирает всё кроме цифр
+            $sku = preg_replace("/(\D)/", "", $sku);
+
+            if (empty($sku) || !is_numeric($sku)) {
+                continue;
+            }
+
+            $skuArrayFiltered[] = $sku;
+        }
+
+        $skuString = implode(',', $skuArrayFiltered);
+
+        return $skuString;
     }
 
     /**
@@ -220,7 +256,8 @@ class AdsModel extends Model {
      * @param type $dataPOST
      * @return boolean вернет FALSE если хоть одно поле не заполнено
      */
-    private function validatePOST($dataPOST) {
+    private function validatePOST($dataPOST)
+    {
         if (empty($dataPOST['name'])) {
             $this->errors[] = "Введите заголовок";
         }
@@ -239,7 +276,8 @@ class AdsModel extends Model {
     }
 
     // ищет по заголовку объявления
-    public function search($qurySearchForm) {
+    public function search($qurySearchForm)
+    {
         if (!empty($qurySearchForm)) {
 
             $searchQuery = '%' . $qurySearchForm . '%';
@@ -257,7 +295,8 @@ class AdsModel extends Model {
         }
     }
 
-    public function delAd($idAds) {
+    public function delAd($idAds)
+    {
         // в случае ошибки при выполнении запроса PDO должен выкинуть исключение,
         // но это не точно, так что, возможно, стоит сделать дополнительную проверку
         $this->dbhSTKApps->query("DELETE FROM `ads` WHERE `id` = ?", 'none', '', array($idAds));

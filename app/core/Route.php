@@ -22,6 +22,7 @@ class Route
             // без изменения адреса - будут ломаться ссылки во вью
             $url = 'Location: /' . strtolower($controllerName) . '/';
             header($url);
+            exit;
         }
 
         if (!empty($routes[2])) {
@@ -40,6 +41,10 @@ class Route
         
         $controllerlClass = $controllerName . 'Controller';
         $controllerNamespace = 'Application\\Controllers\\' . $controllerlClass;
+        /*
+        var_dump($controllerNamespace);
+        var_dump(class_exists($controllerNamespace));
+        */
         if (!class_exists($controllerNamespace)) {
             $this->getErrorPage404();
         }
@@ -56,10 +61,8 @@ class Route
 
     private function getErrorPage404()
     {
-        $host = 'http://' . $_SERVER['HTTP_HOST'] . '/';
         header('HTTP/1.1 404 Not Found');
         header('Status: 404 Not Found');
-        header('Location:' . $host . '404');
         exit;
     }
 }

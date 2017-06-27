@@ -5,14 +5,15 @@
     </a>
 </div>
 <div class="row">
-    <p><strong><span id="adName"><?php echo htmlspecialchars($data['adInfo']['name'], ENT_QUOTES) ?></span></strong></p>
+    <p class="adTextArea"><strong><span id="adName"><?php echo htmlspecialchars($data['adInfo']['name'], ENT_QUOTES) ?></span></strong></p>
 </div>
 
 <div class="row">
     <button type="button" class="btn btn-default" id="copyAdDescription" title="Скопировать описание"><span class="glyphicon glyphicon-copy" aria-hidden="true"></span></button>
+    <button type="button" class="btn btn-default" id="removeFormattingBtn" title="Удалить форматирование">Удалить форматирование</button>
 </div>
 <div class="row">
-    <p>
+    <p class="adTextArea">
         <span id="adDescription">
             <?php
             foreach ($data['adInfo']['products'] as $product) {
@@ -30,5 +31,5 @@
 </div>
 
 <!-- Функция копирования -->    
-<script src="<?php echo $data['publicDir'] . 'js/copyAd.js'; ?>"></script>
+<script src="<?php echo $data['publicDir'] . 'js/viewAd.js'; ?>"></script>
 

@@ -46,7 +46,7 @@ class MysqlModel extends Model
      * $section_name принимает массив с параметрами для подготавливаемого 
      * запроса с неименованными псевдопеременными для защиты от инъекций
      */
-    public function query($query, $typeQuery = null, $num = null, array $query_param = array())
+    public function query($query, $typeQuery = null, $num = null, $query_param = array())
     {
         if ($q = $this->dbh->prepare($query)) {
             switch ($typeQuery) {
